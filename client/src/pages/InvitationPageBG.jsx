@@ -8,141 +8,142 @@ import man from '../assets/man.jpg';
 import bgTop from '../assets/bgTop.jpg';
 import bgMiddle from '../assets/bgMiddle.jpg';
 import bgEvent from '../assets/bgEvent.jpg';
-import floralDivider from '../assets/floral-divider.png';
+import floralDivider from '../assets/floral-divider.png'; // Make sure this path is correct
 
 const textVariant = {
-    hidden: { opacity: 0, y: 30 },
-    visible: (i = 1) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.2,
-        duration: 0.6
-      }
-    })
-  };
-  
-  const fadeIn = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: 0.8,
-        ease: "easeInOut"
-      }
+  hidden: { opacity: 0, y: 30 },
+  visible: (i = 1) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.2,
+      duration: 0.6
     }
-  };
-  
-  const bounce = {
-    animate: {
-      y: [0, -10, 0],
-      transition: {
-        duration: 1.5,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }
+  })
+};
+
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      duration: 0.8,
+      ease: "easeInOut"
     }
-  };
-  
-  // Define the FloralDivider component
-  const FloralDivider = () => (
+  }
+};
+
+const bounce = {
+  animate: {
+    y: [0, -10, 0],
+    transition: {
+      duration: 1.5,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  }
+};
+
+// Define the FloralDivider component
+const FloralDivider = () => (
+  <motion.div 
+    initial={{ opacity: 0 }}
+    whileInView={{ opacity: 1 }}
+    viewport={{ once: true }}
+    className="my-12 flex justify-center"
+  >
+    <img 
+      src={floralDivider} 
+      alt="floral divider" 
+      className="h-16 opacity-70" 
+      onError={(e) => {
+        // Fallback if image fails to load
+        e.target.style.display = 'none';
+      }}
+    />
+  </motion.div>
+);
+
+const Countdown = ({ targetDate }) => {
+  const [timeLeft, setTimeLeft] = useState({});
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      const difference = targetDate - now;
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((difference / 1000 / 60) % 60);
+      const seconds = Math.floor((difference / 1000) % 60);
+      setTimeLeft({ days, hours, minutes, seconds });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [targetDate]);
+
+  return (
     <motion.div 
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
-      className="my-12 flex justify-center"
+      initial="hidden"
+      whileInView="visible"
+      variants={fadeIn}
+      className="flex justify-center gap-3 text-center text-[#3d2b1f] font-semibold mt-6"
     >
-      <img 
-        src={floralDivider} 
-        alt="floral divider" 
-        className="h-16 opacity-70" 
-        onError={(e) => {
-          // Fallback if image fails to load
-          e.target.style.display = 'none';
-        }}
-      />
+      {['days', 'hours', 'minutes', 'seconds'].map((unit) => (
+        <div 
+          key={unit} 
+          className="bg-white/70 backdrop-blur-sm border border-[#bfa99a] px-3 py-2 rounded-lg shadow-lg min-w-[70px]"
+        >
+          <div className="text-3xl sm:text-4xl font-bold text-[#5a3e36]">
+            {String(timeLeft[unit] ?? '00').padStart(2, '0')}
+          </div>
+          <div className="text-xs uppercase tracking-wider mt-1 text-[#7a5c4d]">
+            {unit}
+          </div>
+        </div>
+      ))}
     </motion.div>
   );
-  
-  const Countdown = ({ targetDate }) => {
-    const [timeLeft, setTimeLeft] = useState({});
-  
-    useEffect(() => {
-      const interval = setInterval(() => {
-        const now = new Date();
-        const difference = targetDate - now;
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((difference / 1000 / 60) % 60);
-        const seconds = Math.floor((difference / 1000) % 60);
-        setTimeLeft({ days, hours, minutes, seconds });
-      }, 1000);
-  
-      return () => clearInterval(interval);
-    }, [targetDate]);
-  
-    return (
-      <motion.div 
-        initial="hidden"
-        whileInView="visible"
-        variants={fadeIn}
-        className="flex justify-center gap-3 text-center text-[#3d2b1f] font-semibold mt-6"
-      >
-        {['days', 'hours', 'minutes', 'seconds'].map((unit) => (
-          <div 
-            key={unit} 
-            className="bg-white/70 backdrop-blur-sm border border-[#bfa99a] px-3 py-2 rounded-lg shadow-lg min-w-[70px]"
-          >
-            <div className="text-3xl sm:text-4xl font-bold text-[#5a3e36]">
-              {String(timeLeft[unit] ?? '00').padStart(2, '0')}
-            </div>
-            <div className="text-xs uppercase tracking-wider mt-1 text-[#7a5c4d]">
-              {unit}
-            </div>
-          </div>
-        ))}
-      </motion.div>
-    );
+};
+
+const ScrollButton = ({ targetId }) => {
+  const scrollToSection = () => {
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
   };
-  
-  const ScrollButton = ({ targetId }) => {
-    const scrollToSection = () => {
-      const element = document.getElementById(targetId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    };
-  
-    return (
-      <motion.button
-        variants={bounce}
-        initial="initial"
-        animate="animate"
-        onClick={scrollToSection}
-        className="mt-12 bg-white/30 backdrop-blur-sm border border-white rounded-full p-4 text-white hover:bg-white/50 transition-all duration-300 focus:outline-none"
-        aria-label="Scroll to next section"
-      >
-        <FaChevronDown className="text-2xl" />
-      </motion.button>
-    );
+
+  return (
+    <motion.button
+      variants={bounce}
+      initial="initial"
+      animate="animate"
+      onClick={scrollToSection}
+      className="mt-12 bg-white/30 backdrop-blur-sm border border-white rounded-full p-4 text-white hover:bg-white/50 transition-all duration-300 focus:outline-none"
+      aria-label="Scroll to next section"
+    >
+      <FaChevronDown className="text-2xl" />
+    </motion.button>
+  );
+};
+
+export default function InvitationPage() {
+  const [params] = useSearchParams();
+  const guestName = params.get('to') ?? 'Tamu Undangan';
+  const eventDate = new Date('2025-06-06T08:00:00');
+  const [messages, setMessages] = useState([]);
+  const [name, setName] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (name && message) {
+      setMessages(prev => [...prev, { name, message, date: new Date() }]);
+      setName('');
+      setMessage('');
+    }
   };
-  
-  export default function InvitationPage() {
-    const [params] = useSearchParams();
-    const guestName = params.get('to') ?? 'Tamu Undangan';
-    const eventDate = new Date('2025-06-06T08:00:00');
-    const [messages, setMessages] = useState([]);
-    const [name, setName] = useState('');
-    const [message, setMessage] = useState('');
-  
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      if (name && message) {
-        setMessages(prev => [...prev, { name, message, date: new Date() }]);
-        setName('');
-        setMessage('');
-      }
-    };
+
   return (
     <div className="bg-[#fbf9f6] text-[#3d2b1f] font-serif overflow-hidden">
       {/* Full-Page Hero Section */}
@@ -246,36 +247,32 @@ const textVariant = {
       <FloralDivider />
 
       {/* Event Details */}
-      <section
-        className="py-20 text-center bg-cover bg-fixed bg-center relative"
-        style={{ backgroundImage: `url(${bgEvent})` }}
-      >
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="relative z-10 container mx-auto px-4">
+      <section className="py-12 md:py-20 text-center relative bg-[#5a3e36] px-4">
+        <div className="container mx-auto">
           <motion.div
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-100px" }}
             variants={textVariant}
-            className="bg-white/80 backdrop-blur-sm rounded-lg p-8 max-w-2xl mx-auto shadow-lg"
+            className="bg-white/90 rounded-lg p-6 md:p-8 shadow-lg max-w-md mx-auto"
           >
-            <h2 className="text-3xl font-bold mb-6 text-[#5a3e36]">Acara Pernikahan</h2>
+            <h2 className="text-xl md:text-2xl font-bold mb-4 text-[#5a3e36]">Acara Pernikahan</h2>
             
-            <div className="space-y-6">
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-[#7a5c4d] mb-2">Akad Nikah</h3>
-                <p className="text-lg">Sabtu, 6 Juni 2025</p>
-                <p className="text-lg">08.00 - 10.00 WIB</p>
-                <p className="mt-2">Masjid Al-Hikmah</p>
-                <p>Jl. Kenangan Indah No. 123, Jakarta</p>
+            <div className="space-y-4">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-[#7a5c4d] mb-1">Akad Nikah</h3>
+                <p className="text-[#5a3e36]">Sabtu, 6 Juni 2025</p>
+                <p className="text-[#5a3e36]">08.00 - 10.00 WIB</p>
+                <p className="mt-1 text-sm text-[#7a5c4d]">Masjid Al-Hikmah</p>
+                <p className="text-sm text-[#7a5c4d]">Jl. Kenangan Indah No. 123, Jakarta</p>
               </div>
               
               <div>
-                <h3 className="text-xl font-semibold text-[#7a5c4d] mb-2">Resepsi</h3>
-                <p className="text-lg">Sabtu, 6 Juni 2025</p>
-                <p className="text-lg">11.00 - 16.00 WIB</p>
-                <p className="mt-2">Grand Ballroom Hotel Mawar</p>
-                <p>Jl. Kemerdekaan No. 456, Jakarta</p>
+                <h3 className="text-lg font-semibold text-[#7a5c4d] mb-1">Resepsi</h3>
+                <p className="text-[#5a3e36]">Sabtu, 6 Juni 2025</p>
+                <p className="text-[#5a3e36]">11.00 - 16.00 WIB</p>
+                <p className="mt-1 text-sm text-[#7a5c4d]">Grand Ballroom Hotel Mawar</p>
+                <p className="text-sm text-[#7a5c4d]">Jl. Kemerdekaan No. 456, Jakarta</p>
               </div>
             </div>
           </motion.div>
@@ -494,7 +491,7 @@ const textVariant = {
                 className="overflow-hidden rounded-lg shadow-md cursor-pointer"
               >
                 <img
-                  src={`https://source.unsplash.com/random/300x300/?wedding,${item}`}
+                  src={`https://images.pexels.com/photos/11184004/pexels-photo-11184004.jpeg,${item}`}
                   alt={`Gallery ${item}`}
                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                 />
